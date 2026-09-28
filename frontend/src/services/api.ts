@@ -56,6 +56,21 @@ export const productService = {
   delete: async (id: number): Promise<void> => {
     await api.delete(`/products/${id}`);
   },
+
+  simulateSale: async (id: number, quantity: number = 1): Promise<Product> => {
+    const response = await api.post<Product>(`/products/${id}/orders?quantity=${quantity}`);
+    return response.data;
+  },
+
+  suggestPricing: async (id: number): Promise<PricingSuggestion> => {
+    const response = await api.post<PricingSuggestion>(`/products/${id}/suggest-pricing`);
+    return response.data;
+  },
+
+  suggestReorder: async (id: number): Promise<ReorderSuggestion> => {
+    const response = await api.post<ReorderSuggestion>(`/products/${id}/suggest-reorder`);
+    return response.data;
+  },
 };
 
 export const pricingService = {

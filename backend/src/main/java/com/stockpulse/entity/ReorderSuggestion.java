@@ -1,6 +1,7 @@
 package com.stockpulse.entity;
 
 import com.stockpulse.enums.SuggestionStatus;
+import com.stockpulse.enums.TriggerReason;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,12 +34,19 @@ public class ReorderSuggestion {
     @Column(name = "suggested_lead_time_days")
     private Integer suggestedLeadTimeDays;
 
-    @Column(name = "reason", length = 500)
+    @Column(name = "reason", length = 1000)
     private String reason;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private SuggestionStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trigger_reason")
+    private TriggerReason triggerReason;
+
+    @Column(name = "confidence_score")
+    private Double confidenceScore;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

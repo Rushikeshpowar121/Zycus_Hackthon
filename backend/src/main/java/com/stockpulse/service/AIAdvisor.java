@@ -170,6 +170,7 @@ public class AIAdvisor implements CommerceAdvisor {
                 .direction(direction)
                 .confidenceScore(confidence)
                 .reason("Gemini AI: " + reasoning)
+                .triggerReason(triggerReason)
                 .status(SuggestionStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -180,6 +181,9 @@ public class AIAdvisor implements CommerceAdvisor {
                     .productId(product.getId())
                     .supplierId(product.getSupplierId() != null ? product.getSupplierId() : 101L)
                     .suggestedQuantity(reorderQty)
+                    .suggestedLeadTimeDays(7)
+                    .confidenceScore(confidence)
+                    .triggerReason(triggerReason)
                     .reason("Gemini AI: Reorder recommended based on inventory analysis.")
                     .status(SuggestionStatus.PENDING)
                     .createdAt(LocalDateTime.now())

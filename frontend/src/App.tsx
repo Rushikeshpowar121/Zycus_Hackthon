@@ -3,13 +3,14 @@ import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
 import { SimulatorPage } from './pages/SimulatorPage';
 import { AuditPage } from './pages/AuditPage';
+import { MerchandisingPage } from './pages/MerchandisingPage';
 import { StrategyModal } from './components/StrategyModal';
 import { StockModal } from './components/StockModal';
 import { productService, pricingService, analyticsService, advisorService } from './services/api';
 import { Product, AnalyticsSummary, PriceAudit, InventoryLog, PricingSuggestion, ReorderSuggestion } from './types';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [activeTab, setActiveTab] = useState<string>('merchandising');
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -53,8 +54,8 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     refreshAllData();
-    // Auto-refresh every 10 seconds to pick up async event changes
-    const interval = setInterval(refreshAllData, 10000);
+    // Auto-refresh every 8 seconds to pick up async agentic loop suggestions
+    const interval = setInterval(refreshAllData, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -106,6 +107,9 @@ export const App: React.FC = () => {
     }
   };
 
+  const pendingCount = pricingSuggestions.filter(s => s.status === 'PENDING').length
+    + reorderSuggestions.filter(s => s.status === 'PENDING').length;
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar
@@ -113,6 +117,7 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
         onBatchReprice={handleBatchReprice}
         isRepricing={isRepricing}
+        pendingCount={pendingCount}
       />
 
       <main style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', padding: '0 24px 40px 24px', flex: 1 }}>
@@ -125,6 +130,19 @@ export const App: React.FC = () => {
           </div>
         ) : (
           <>
+            {activeTab === 'merchandising' && (
+              <MerchandisingPage
+                products={products}
+                pricingSuggestions={pricingSuggestions}
+                reorderSuggestions={reorderSuggestions}
+                onRefresh={refreshAllData}
+                onApprovePricing={handleApprovePricing}
+                onRejectPricing={handleRejectPricing}
+                onApproveReorder={handleApproveReorder}
+                onRejectReorder={handleRejectReorder}
+              />
+            )}
+
             {(activeTab === 'dashboard' || activeTab === 'inventory') && (
               <Dashboard
                 summary={summary}
@@ -168,7 +186,7 @@ export const App: React.FC = () => {
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border-color)', padding: '20px', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-dim)', background: 'rgba(0,0,0,0.3)' }}>
-        StockPulse AI Inventory & Dynamic Pricing Engine • Powered by Spring Boot 3, Java 17 & React + Vite
+        StockPulse AI Inventory & Dynamic Pricing Engine • Spring Boot 3 + Java 17 + React + Vite • Agentic Loop: Observe → Reason → Act → Checkpoint
       </footer>
     </div>
   );

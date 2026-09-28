@@ -10,7 +10,8 @@ export type InventoryStatus =
   | 'LOW_STOCK'
   | 'OUT_OF_STOCK'
   | 'OVERSTOCKED'
-  | 'EXPIRING_SOON';
+  | 'EXPIRING_SOON'
+  | 'PRICE_REVIEW_PENDING';
 
 export type DemandLevel = 
   | 'VERY_LOW'
@@ -25,6 +26,17 @@ export type RiskLevel =
   | 'HIGH'
   | 'CRITICAL';
 
+export type TriggerReason =
+  | 'INITIAL'
+  | 'MANUAL'
+  | 'INVENTORY_LOW'
+  | 'DEMAND_SPIKE'
+  | 'DEMAND_SURGE'
+  | 'COMPETITOR_PRICE_CHANGE'
+  | 'LOW_STOCK'
+  | 'EXPIRING_INVENTORY'
+  | 'SCHEDULED_ANALYSIS';
+
 export interface Product {
   id: number;
   sku: string;
@@ -37,11 +49,13 @@ export interface Product {
   maxPrice: number;
   stockQuantity: number;
   reorderPoint: number;
+  reorderThreshold?: number;
   maxStockLimit: number;
   daysInStock: number;
   daysToExpiry?: number;
   competitorPriceIndex?: number;
   salesVelocity?: number;
+  demandVelocity?: number;
   viewsCount?: number;
   activeStrategyType: PricingStrategyType;
   status: InventoryStatus;
@@ -120,10 +134,11 @@ export interface PricingSuggestion {
   productId: number;
   suggestedPrice: number;
   oldPrice: number;
-  direction: 'INCREASE' | 'DECREASE' | 'HOLD';
+  direction: 'INCREASE' | 'DECREASE' | 'HOLD' | 'MAINTAIN';
   confidenceScore: number;
   reason: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  triggerReason?: TriggerReason;
   createdAt: string;
 }
 
@@ -133,7 +148,9 @@ export interface ReorderSuggestion {
   supplierId: number;
   suggestedQuantity: number;
   suggestedLeadTimeDays?: number;
+  confidenceScore?: number;
   reason: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  triggerReason?: TriggerReason;
   createdAt: string;
 }

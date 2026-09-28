@@ -103,6 +103,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           categories={categories}
           onOpenPricingModal={onOpenPricingModal}
           onOpenStockModal={onOpenStockModal}
+          onRefresh={() => {}}
         />
       </div>
 

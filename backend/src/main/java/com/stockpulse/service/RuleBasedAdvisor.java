@@ -88,6 +88,8 @@ public class RuleBasedAdvisor implements CommerceAdvisor {
             direction = Direction.DECREASE;
         }
 
+        TriggerReason finalTrigger = triggerReason != null ? triggerReason : TriggerReason.SCHEDULED_ANALYSIS;
+
         PricingSuggestion pricingSuggestion = PricingSuggestion.builder()
                 .productId(product.getId())
                 .oldPrice(currentPrice)
@@ -96,6 +98,7 @@ public class RuleBasedAdvisor implements CommerceAdvisor {
                 .confidenceScore(0.95)
                 .reason(reasoning.toString().trim())
                 .status(SuggestionStatus.PENDING)
+                .triggerReason(finalTrigger)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -109,6 +112,9 @@ public class RuleBasedAdvisor implements CommerceAdvisor {
                     .productId(product.getId())
                     .supplierId(product.getSupplierId() != null ? product.getSupplierId() : 101L)
                     .suggestedQuantity(finalReorderQty)
+                    .suggestedLeadTimeDays(7)
+                    .confidenceScore(0.92)
+                    .triggerReason(finalTrigger)
                     .reason(String.format("Rule Triggered: Stock level (%d) < Threshold (%d). Formula (Threshold * 3 - Stock) = %d units.",
                             stockLevel, threshold, finalReorderQty))
                     .status(SuggestionStatus.PENDING)
@@ -116,7 +122,6 @@ public class RuleBasedAdvisor implements CommerceAdvisor {
                     .build();
         }
 
-        TriggerReason finalTrigger = triggerReason != null ? triggerReason : TriggerReason.SCHEDULED_ANALYSIS;
         String summary = String.format("RuleBasedAdvisor evaluated %s (Trigger: %s) -> Pricing Direction: %s, Reorder Needed: %s.",
                 product.getSku(), finalTrigger, direction, reorderSuggestion != null ? "YES (" + reorderSuggestion.getSuggestedQuantity() + " units)" : "NO");
 
