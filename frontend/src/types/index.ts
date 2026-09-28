@@ -114,3 +114,26 @@ export interface InventoryLog {
   notes?: string;
   timestamp: string;
 }
+
+export interface PricingSuggestion {
+  id: number;
+  productId: number;
+  suggestedPrice: number;
+  oldPrice: number;
+  direction: 'INCREASE' | 'DECREASE' | 'HOLD';
+  confidenceScore: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
+export interface ReorderSuggestion {
+  id: number;
+  productId: number;
+  supplierId: number;
+  suggestedQuantity: number;
+  suggestedLeadTimeDays?: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}

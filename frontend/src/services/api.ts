@@ -6,6 +6,8 @@ import {
   PricingCalculationResult,
   PricingRule,
   Product,
+  PricingSuggestion,
+  ReorderSuggestion,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -113,5 +115,46 @@ export const analyticsService = {
   getInventoryLogs: async (): Promise<InventoryLog[]> => {
     const response = await api.get<InventoryLog[]>('/analytics/inventory-logs');
     return response.data;
+  },
+};
+
+export const advisorService = {
+  getPricingSuggestions: async (): Promise<PricingSuggestion[]> => {
+    const response = await api.get<PricingSuggestion[]>('/advisor/pricing-suggestions');
+    return response.data;
+  },
+
+  getReorderSuggestions: async (): Promise<ReorderSuggestion[]> => {
+    const response = await api.get<ReorderSuggestion[]>('/advisor/reorder-suggestions');
+    return response.data;
+  },
+
+  approvePricingSuggestion: async (id: number): Promise<PricingSuggestion> => {
+    const response = await api.patch<PricingSuggestion>(`/pricing-suggestions/${id}?action=APPROVED`);
+    return response.data;
+  },
+
+  rejectPricingSuggestion: async (id: number): Promise<PricingSuggestion> => {
+    const response = await api.patch<PricingSuggestion>(`/pricing-suggestions/${id}?action=REJECTED`);
+    return response.data;
+  },
+
+  approveReorderSuggestion: async (id: number): Promise<ReorderSuggestion> => {
+    const response = await api.patch<ReorderSuggestion>(`/reorder-suggestions/${id}?action=APPROVED`);
+    return response.data;
+  },
+
+  rejectReorderSuggestion: async (id: number): Promise<ReorderSuggestion> => {
+    const response = await api.patch<ReorderSuggestion>(`/reorder-suggestions/${id}?action=REJECTED`);
+    return response.data;
+  },
+
+  getActiveConfig: async (): Promise<string> => {
+    const response = await api.get<string>('/advisor/config');
+    return response.data;
+  },
+
+  updateActiveConfig: async (type: string): Promise<void> => {
+    await api.put(`/advisor/config?type=${type}`);
   },
 };

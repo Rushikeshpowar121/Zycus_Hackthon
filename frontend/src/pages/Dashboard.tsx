@@ -1,7 +1,8 @@
 import React from 'react';
-import { AnalyticsSummary, PriceAudit, Product } from '../types';
+import { AnalyticsSummary, PriceAudit, Product, PricingSuggestion, ReorderSuggestion } from '../types';
 import { MetricCard } from '../components/MetricCard';
 import { ProductTable } from '../components/ProductTable';
+import { PendingSuggestionsBanner } from '../components/PendingSuggestionsBanner';
 import { DollarSign, Layers, AlertTriangle, TrendingUp, Sparkles, Activity, Clock } from 'lucide-react';
 
 interface DashboardProps {
@@ -9,8 +10,14 @@ interface DashboardProps {
   products: Product[];
   categories: string[];
   recentAudits: PriceAudit[];
+  pricingSuggestions: PricingSuggestion[];
+  reorderSuggestions: ReorderSuggestion[];
   onOpenPricingModal: (product: Product) => void;
   onOpenStockModal: (product: Product) => void;
+  onApprovePricing: (id: number) => void;
+  onRejectPricing: (id: number) => void;
+  onApproveReorder: (id: number) => void;
+  onRejectReorder: (id: number) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -18,8 +25,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
   products,
   categories,
   recentAudits,
+  pricingSuggestions,
+  reorderSuggestions,
   onOpenPricingModal,
   onOpenStockModal,
+  onApprovePricing,
+  onRejectPricing,
+  onApproveReorder,
+  onRejectReorder,
 }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -64,6 +77,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
           isPositive={true}
         />
       </div>
+
+      {/* Pending Agentic Recommendations Banner */}
+      <PendingSuggestionsBanner
+        pricingSuggestions={pricingSuggestions}
+        reorderSuggestions={reorderSuggestions}
+        products={products}
+        onApprovePricing={onApprovePricing}
+        onRejectPricing={onRejectPricing}
+        onApproveReorder={onApproveReorder}
+        onRejectReorder={onRejectReorder}
+      />
 
       {/* Main Inventory Section */}
       <div>

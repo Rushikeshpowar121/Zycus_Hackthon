@@ -5,8 +5,8 @@ import { SimulatorPage } from './pages/SimulatorPage';
 import { AuditPage } from './pages/AuditPage';
 import { StrategyModal } from './components/StrategyModal';
 import { StockModal } from './components/StockModal';
-import { productService, pricingService, analyticsService } from './services/api';
-import { Product, AnalyticsSummary, PriceAudit, InventoryLog } from './types';
+import { productService, pricingService, analyticsService, advisorService } from './services/api';
+import { Product, AnalyticsSummary, PriceAudit, InventoryLog, PricingSuggestion, ReorderSuggestion } from './types';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -16,6 +16,8 @@ export const App: React.FC = () => {
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [recentAudits, setRecentAudits] = useState<PriceAudit[]>([]);
   const [inventoryLogs, setInventoryLogs] = useState<InventoryLog[]>([]);
+  const [pricingSuggestions, setPricingSuggestions] = useState<PricingSuggestion[]>([]);
+  const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [isRepricing, setIsRepricing] = useState<boolean>(false);
@@ -26,18 +28,22 @@ export const App: React.FC = () => {
 
   const refreshAllData = async () => {
     try {
-      const [prods, cats, sum, audits, logs] = await Promise.all([
-        productService.getAll(),
-        productService.getCategories(),
-        analyticsService.getSummary(),
-        analyticsService.getPriceAudits(),
-        analyticsService.getInventoryLogs(),
+      const [prods, cats, sum, audits, logs, pSuggests, rSuggests] = await Promise.all([
+        productService.getAll().catch(() => []),
+        productService.getCategories().catch(() => []),
+        analyticsService.getSummary().catch(() => null),
+        analyticsService.getPriceAudits().catch(() => []),
+        analyticsService.getInventoryLogs().catch(() => []),
+        advisorService.getPricingSuggestions().catch(() => []),
+        advisorService.getReorderSuggestions().catch(() => []),
       ]);
       setProducts(prods);
       setCategories(cats);
       setSummary(sum);
       setRecentAudits(audits);
       setInventoryLogs(logs);
+      setPricingSuggestions(pSuggests);
+      setReorderSuggestions(rSuggests);
     } catch (err) {
       console.error('Failed to load StockPulse data from backend API:', err);
     } finally {
@@ -47,10 +53,46 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     refreshAllData();
-    // Auto-refresh every 15 seconds to pick up async event changes
-    const interval = setInterval(refreshAllData, 15000);
+    // Auto-refresh every 10 seconds to pick up async event changes
+    const interval = setInterval(refreshAllData, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleApprovePricing = async (id: number) => {
+    try {
+      await advisorService.approvePricingSuggestion(id);
+      await refreshAllData();
+    } catch (err) {
+      console.error('Failed to approve pricing suggestion:', err);
+    }
+  };
+
+  const handleRejectPricing = async (id: number) => {
+    try {
+      await advisorService.rejectPricingSuggestion(id);
+      await refreshAllData();
+    } catch (err) {
+      console.error('Failed to reject pricing suggestion:', err);
+    }
+  };
+
+  const handleApproveReorder = async (id: number) => {
+    try {
+      await advisorService.approveReorderSuggestion(id);
+      await refreshAllData();
+    } catch (err) {
+      console.error('Failed to approve reorder suggestion:', err);
+    }
+  };
+
+  const handleRejectReorder = async (id: number) => {
+    try {
+      await advisorService.rejectReorderSuggestion(id);
+      await refreshAllData();
+    } catch (err) {
+      console.error('Failed to reject reorder suggestion:', err);
+    }
+  };
 
   const handleBatchReprice = async () => {
     setIsRepricing(true);
@@ -89,8 +131,14 @@ export const App: React.FC = () => {
                 products={products}
                 categories={categories}
                 recentAudits={recentAudits}
+                pricingSuggestions={pricingSuggestions}
+                reorderSuggestions={reorderSuggestions}
                 onOpenPricingModal={(product) => setSelectedProductForPricing(product)}
                 onOpenStockModal={(product) => setSelectedProductForStock(product)}
+                onApprovePricing={handleApprovePricing}
+                onRejectPricing={handleRejectPricing}
+                onApproveReorder={handleApproveReorder}
+                onRejectReorder={handleRejectReorder}
               />
             )}
 
