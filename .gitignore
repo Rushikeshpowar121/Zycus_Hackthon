@@ -1,0 +1,48 @@
+# Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# React / Vite
+node_modules/
+dist/
+build/
+.vite/
+
+# Environment Files & Secrets
+.env
+.env.*
+application-local.properties
+application-secret.properties
+secrets.properties
+
+# IDE Files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Logs
+logs/
+*.log
+
+# OS Generated
+.DS_Store
+Thumbs.db
+
+# Temporary & Scratch
+tmp/
+temp/
+scratch/
+*.tmp
+
+# H2 Database Files
+*.mv.db
+*.trace.db
